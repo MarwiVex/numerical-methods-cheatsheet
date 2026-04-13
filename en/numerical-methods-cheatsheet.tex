@@ -1,0 +1,344 @@
+\documentclass[10pt, landscape, twocolumn]{article}
+
+\usepackage[margin=0.5in, columnsep=0.4in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{enumitem}
+\usepackage{mathpazo} 
+\usepackage{booktabs}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+
+\AtBeginDocument{
+  \setlength{\abovedisplayskip}{3pt}
+  \setlength{\belowdisplayskip}{3pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+}
+
+\definecolor{themeblue}{RGB}{0, 90, 160}
+\definecolor{themegray}{RGB}{80, 80, 80}
+
+\newcommand{\cheatsheetsection}[1]{
+    \vspace{0.6em}
+    {\color{themeblue}\large\bfseries #1} \par
+    \vspace{-0.5em}
+    {\color{themeblue}\rule{\linewidth}{1pt}} \par
+    \vspace{0.2em}
+}
+
+\newcommand{\cheatsheetsubsection}[1]{
+    \vspace{0.4em}
+    {\color{themeblue}\normalsize\bfseries #1} \par
+    \vspace{0.1em}
+}
+
+\begin{document}
+
+\begin{center}
+    \vspace{-1em}
+    {\color{themeblue}\huge\bfseries NUMERICAL METHODS CHEAT SHEET}\\[0.8em]
+    {\color{themegray}\small Comprehensive Guide: Fundamentals, Roots, Linear Algebra, Calculus, ODEs, and PDEs}\\[0.4em]
+    {\color{themegray}\footnotesize \textbf{By Roberto León Landeros}}
+\end{center}
+\vspace{-0.5em}
+
+\cheatsheetsection{I. Scientific Computing \& Fundamentals}
+
+\cheatsheetsubsection{Computer Arithmetic}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Binary \& IEEE 754:} Computers store numbers in base-2. Double precision uses 64 bits (1 sign, 11 exponent, 52 mantissa/fraction). Machine epsilon $\epsilon_m \approx 2.22 \times 10^{-16}$.
+    \item \textbf{Error Types:} Let $p$ be exact and $p^*$ be approximate.
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Absolute Error:} $E_a = |p - p^*|$
+        \item \textit{Relative Error:} $E_r = \frac{|p - p^*|}{|p|}$
+        \item \textit{Truncation Error:} Arises from using a truncated mathematical procedure (e.g., finite Taylor series).
+        \item \textit{Round-off Error:} Arises from finite machine precision.
+    \end{itemize}
+    \item \textbf{Error Propagation:} Loss of significance occurs during subtractive cancellation of nearly equal numbers.
+\end{itemize}
+
+\cheatsheetsubsection{Mathematical Foundations}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Taylor Series:} $f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n$
+    \item \textbf{Lagrange Remainder:} $R_n(x) = \frac{f^{(n+1)}(\xi)}{(n+1)!}(x-a)^{n+1}$ for $\xi \in (a,x)$. 
+    \item \textbf{Conditioning:} A problem is well-conditioned if small input changes yield small output changes.
+    \item \textbf{Condition Number:} $\kappa(A) = \|A\| \|A^{-1}\| \quad \text{(induced norm)}$. If $\kappa(A)$ is large, the matrix is ill-conditioned. \\
+    \textit{Interpretation:} Measures sensitivity of solution to input errors.
+\end{itemize}
+
+\cheatsheetsubsection{Numerical Programming Practices}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Vectorization:} Replacing loop-based operations with matrix/vector operations to optimize execution speed in environments like MATLAB or NumPy.
+    \item \textbf{Algorithmic Complexity:} Big-O notation $\mathcal{O}(n)$ describes the upper bound of operations required.
+\end{itemize}
+
+\cheatsheetsection{II. Root Finding \& Optimization}
+
+\cheatsheetsubsection{Bracketing (Closed) Methods}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Bisection Method:} Requires $f(a)f(b) < 0$. Root is in $[a,b]$.
+    $p_n = \frac{a+b}{2}$. Error $\leq \frac{b-a}{2^n}$. \\
+    \textit{Use when:} Reliable root bracketing is needed without derivative. \\
+    \textit{Avoid when:} Fast convergence is required.
+    \item \textbf{Regula Falsi (False Position):} $p_n = b - f(b)\frac{b-a}{f(b)-f(a)}$.
+\end{itemize}
+
+\cheatsheetsubsection{Open \& Hybrid Methods}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Newton-Raphson:} $p_n = p_{n-1} - \frac{f(p_{n-1})}{f'(p_{n-1})}$. 
+    Requires analytical derivative. Quadratic convergence: $|e_{n+1}| \approx C |e_n|^2$. \\
+    \textit{Use when:} Good initial guess and derivative available. Fast convergence. \\
+    \textit{Avoid when:} $f'(x) \approx 0$ or poor initial guess. \\
+    \textit{Complex visualization:} Generates Newton Fractals when mapping convergence behavior in the complex plane.
+    \item \textbf{Secant Method:} Approximates $f'(x)$.
+    $p_n = p_{n-1} - f(p_{n-1})\frac{p_{n-1}-p_{n-2}}{f(p_{n-1})-f(p_{n-2})}$. 
+    Superlinear convergence (order $\approx 1.618$). \\
+    \textit{Use when:} Derivative is too expensive or unknown.
+    \item \textbf{Fixed-Point Iteration:} Rewrite $f(x)=0$ as $x = g(x)$. Iterate $p_n = g(p_{n-1})$. Converges if $|g'(x)| < 1$ near the root.
+    \item \textbf{Brent's Method:} The industry standard (e.g., \texttt{fzero}). An optimal hybrid combining the guaranteed convergence of Bisection with the speed of the Secant method and Inverse Quadratic Interpolation.
+\end{itemize}
+
+\cheatsheetsubsection{Basic Optimization (Minimization)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Golden-Section Search (1D):} Bracketing method using the golden ratio to narrow down the minimum of a unimodal function without derivatives.
+    \item \textbf{Gradient Descent ($n$D):} $\mathbf{x}_{k+1} = \mathbf{x}_k - \alpha \nabla f(\mathbf{x}_k)$. First-order iterative optimization to find local minimums.
+\end{itemize}
+
+\cheatsheetsubsection{Roots of Polynomials}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Müller's Method:} Uses a parabolic approximation (3 points) to find real and complex roots.
+    \item \textbf{Bairstow's Method:} Extracts quadratic factors iteratively to find all roots (real and complex) without complex arithmetic.
+\end{itemize}
+
+\cheatsheetsection{III. Matrix Algebra \& Linear Systems}
+
+\cheatsheetsubsection{Direct Methods \& Factorizations}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Gaussian Elimination:} $\mathcal{O}(n^3)$ operations. 
+    \textit{Partial Pivoting:} Swapping rows to put the largest absolute value on the diagonal, preventing division by zero and reducing round-off error. Forward elimination + Back substitution $\mathcal{O}(n^2)$.
+    \item \textbf{LU Decomposition:} $A = LU$. Solves $A\mathbf{x} = \mathbf{b}$ via $L\mathbf{y} = \mathbf{b}$ and $U\mathbf{x} = \mathbf{y}$.
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Doolittle:} $L_{ii} = 1$.
+        \item \textit{Crout:} $U_{ii} = 1$.
+    \end{itemize}
+    \item \textbf{Cholesky Factorization:} $A = LL^T$. Requires $A$ to be symmetric and positive definite.
+    \item \textbf{Singular Value Decomposition (SVD):} $A = U \Sigma V^T$. Crucial for ill-conditioned matrices, computing the pseudoinverse ($A^+$) for overdetermined systems, and PCA.
+\end{itemize}
+
+\cheatsheetsubsection{Iterative Methods (Linear Systems)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Jacobi:} Computes new values $x_i^{(k+1)}$ using only old values $x^{(k)}$.
+    \item \textbf{Gauss-Seidel:} Uses newly computed values immediately in the current iteration. \\
+    \textit{Convergence condition:} Guaranteed if the spectral radius $\rho(T) < 1$ or if $A$ is strictly diagonally dominant.
+    \item \textbf{Krylov Subspace Methods:} 
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Conjugate Gradient (CG):} The standard for large, sparse, symmetric positive-definite matrices. Extremely fast convergence compared to standard iterative methods.
+    \end{itemize}
+\end{itemize}
+
+\cheatsheetsubsection{Eigenvalues}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Power Method:} Iterative method to find the dominant eigenvalue $\lambda_1$ and its eigenvector $\mathbf{v}$. 
+    $\mathbf{x}_{k+1} = \frac{A \mathbf{x}_k}{\|A \mathbf{x}_k\|}$.
+    \item \textbf{Inverse Power Method:} Applies power method to $A^{-1}$ or $(A - \sigma I)^{-1}$ to find the smallest eigenvalue or the one closest to shift $\sigma$.
+    \item \textbf{QR Algorithm:} Iteratively factorizes $A_k = Q_k R_k$ and sets $A_{k+1} = R_k Q_k$ to find all eigenvalues simultaneously.
+\end{itemize}
+
+\cheatsheetsubsection{Nonlinear Systems}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Multivariable Newton-Raphson:} $\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - [J(\mathbf{x}^{(k)})]^{-1} \mathbf{F}(\mathbf{x}^{(k)})$, where $J$ is the Jacobian matrix $\frac{\partial F_i}{\partial x_j}$. Ensure consistent vector notation ($\mathbf{x}, \mathbf{F}$).
+\end{itemize}
+
+\cheatsheetsection{IV. Quadrature, Differentiation \& Interpolation}
+
+\cheatsheetsubsection{Interpolation \& Curve Fitting}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Lagrange Polynomials:} $P(x) = \sum_{i=0}^n y_i L_i(x)$, where $L_i(x) = \prod_{j \neq i} \frac{x - x_j}{x_i - x_j}$.
+    \item \textbf{Newton's Divided Differences:} Builds polynomials using hierarchical differences. $P_n(x) = f[x_0] + f[x_0, x_1](x-x_0) + \dots$
+    \item \textbf{Stability (Runge's Phenomenon):} High-degree global polynomials oscillate wildly at the edges of equidistant nodes. \\
+    \textit{Why Splines > Global Polynomials:} Splines use piecewise low-degree polynomials, providing local control and avoiding global oscillations.
+    \item \textbf{Chebyshev Nodes:} To mitigate Runge's phenomenon globally, use the roots of Chebyshev polynomials for node placement. This optimal distribution minimizes the maximum interpolation error.
+    \item \textbf{Cubic Splines:} Piecewise cubic polynomials with continuous $f'$, $f''$. 
+    \textit{Not-a-knot condition:} Forces the third derivative to be continuous at the second and penultimate nodes.
+    \item \textbf{Least Squares:} Minimizes sum of squared residuals. For linear regression $\mathbf{X}^T\mathbf{X}\boldsymbol{\beta} = \mathbf{X}^T\mathbf{y}$.
+\end{itemize}
+
+\cheatsheetsubsection{Numerical Differentiation}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Forward / Backward:} $f'(x) \approx \frac{f(x \pm h) - f(x)}{\pm h}$ (Order $\mathcal{O}(h)$)
+    \item \textbf{Central (1st Deriv):} $f'(x) \approx \frac{f(x+h) - f(x-h)}{2h}$ (Order $\mathcal{O}(h^2)$)
+    \item \textbf{Central (2nd Deriv):} $f''(x) \approx \frac{f(x+h) - 2f(x) + f(x-h)}{h^2}$ (Order $\mathcal{O}(h^2)$)
+    \item \textbf{Richardson Extrapolation:} Eliminates lower-order truncation error terms by combining two estimates with different step sizes (e.g., $h$ and $h/2$), increasing the precision order.
+    \item \textbf{Instability (Step Size Dilemma):} There is an optimal $h$. Decreasing $h$ reduces truncation error but eventually increases round-off error exponentially due to subtractive cancellation.
+\end{itemize}
+
+\cheatsheetsubsection{Numerical Integration (Quadrature)}
+Let $I = \int_a^b f(x)dx$ and $h = \frac{b-a}{n}$.
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Midpoint Rule:} $I \approx (b-a) f(\frac{a+b}{2})$.
+    \item \textbf{Trapezoidal Rule:} $I \approx \frac{h}{2} [f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n)]$. \\
+    \textbf{Trapezoidal Error:} $E = -\frac{(b-a)^3}{12n^2} f''(\xi)$.
+    \item \textbf{Simpson's 1/3 Rule:} Uses parabolic arcs.
+    $I \approx \frac{h}{3} [f(x_0) + 4\sum_{odd} f(x_i) + 2\sum_{even} f(x_i) + f(x_n)]$.
+    \item \textbf{Gaussian Quadrature:} Chooses optimal non-uniform nodes (roots of Legendre polynomials) and weights. \textit{Exact for polynomials up to degree } $2n-1$. \\
+    \textit{Interval Mapping:} To apply tabulated weights on $[a,b]$, use the linear map $x = \frac{b-a}{2}t + \frac{b+a}{2}$ for $t \in [-1,1]$.
+    \item \textbf{Adaptive Integration:} Dynamically reduces step size $h$ in regions with high function variation to minimize computational cost.
+    \item \textbf{Romberg Integration:} Uses Richardson extrapolation to combine trapezoidal approximations, accelerating convergence.
+\end{itemize}
+
+\cheatsheetsection{V. Ordinary Differential Equations (ODEs)}
+\textbf{Error Notation:} \textbf{Local truncation error:} $\mathcal{O}(h^{p+1})$. \textbf{Global error:} $\mathcal{O}(h^p)$.
+
+\cheatsheetsubsection{Initial Value Problems (IVPs)}
+Equation form: $y' = f(t, y)$ with $y(t_0) = y_0$.
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Euler's Method (1st Order):} $y_{i+1} = y_i + h f(t_i, y_i)$. \\
+    \textit{Use when:} Quick, rough approximations. \textit{Avoid when:} Precision is needed.
+    \item \textbf{Modified Euler (Heun / Predictor-Corrector):} 
+    Predictor: $y_{i+1}^* = y_i + h f(t_i, y_i)$.
+    Corrector: $y_{i+1} = y_i + \frac{h}{2}[f(t_i, y_i) + f(t_{i+1}, y_{i+1}^*)]$.
+    \newpage
+    \item \textbf{Runge-Kutta 4th Order (RK4):} Global error $\mathcal{O}(h^4)$.
+    $k_1 = h f(t_i, y_i)$ \\
+    $k_2 = h f(t_i + \frac{h}{2}, y_i + \frac{k_1}{2})$ \\
+    $k_3 = h f(t_i + \frac{h}{2}, y_i + \frac{k_2}{2})$ \\
+    $k_4 = h f(t_i + h, y_i + k_3)$ \\
+    $y_{i+1} = y_i + \frac{1}{6}(k_1 + 2k_2 + 2k_3 + k_4)$. \\
+    \textit{Use when:} Standard, general-purpose balanced solver required.
+    \item \textbf{Adaptive RK (e.g., RKF45):} Compares a 4th and 5th order RK estimation to estimate local error and automatically adjust step size $h$. 
+\end{itemize}
+
+\cheatsheetsubsection{Stability \& Advanced Methods}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Stability Region:} Domain in the complex plane $h\lambda$ where the numerical solution of $y'=\lambda y$ decays to zero. 
+    \textit{Interpretation:} Defines maximum allowable step size $h$ for bounded errors.
+    \item \textbf{Stiff Problems:} Systems with widely varying timescales (e.g., rapid transients and slow dynamics). Explicit methods (like RK4) require prohibitively small $h$ for stability. \\
+    \textit{Solution:} Use Implicit methods (e.g., Backward Euler) which typically offer unconditionally stable regions.
+    \item \textbf{Symplectic Integrators:} (e.g., Leapfrog, Verlet). Essential for orbital and mechanical problems as they conserve the system's long-term energy, unlike RK methods.
+\end{itemize}
+
+\cheatsheetsubsection{Boundary Value Problems (BVPs)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Shooting Method:} Converts BVP into an IVP. Guesses the missing initial slope, integrates to the boundary, and uses root-finding (like Secant) to adjust the guess until the boundary condition is met.
+    \item \textbf{Finite Differences:} Discretizes the domain and replaces derivatives with finite difference quotients, generating a system of algebraic equations (often tridiagonal).
+\end{itemize}
+
+\cheatsheetsection{VI. Partial Differential Equations (PDEs)}
+
+\cheatsheetsubsection{Fundamentals \& Classification}
+General form: $Au_{xx} + Bu_{xy} + Cu_{yy} + Du_x + Eu_y + Fu = G$.
+Discriminant $\Delta = B^2 - 4AC$.
+\begin{itemize}[leftmargin=*, nosep]
+    \item $\Delta < 0$: \textbf{Elliptic} (Equilibrium/steady-state, e.g., Laplace/Poisson).
+    \item $\Delta = 0$: \textbf{Parabolic} (Diffusion/dissipation, e.g., Heat eq).
+    \item $\Delta > 0$: \textbf{Hyperbolic} (Wave propagation, e.g., Wave eq).
+\end{itemize}
+
+\cheatsheetsubsection{Elliptic PDEs (Laplace $\nabla^2 u = 0$)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{5-Point Stencil:} $u_{i+1,j} + u_{i-1,j} + u_{i,j+1} + u_{i,j-1} - 4u_{i,j} = 0$.
+    \item \textbf{Grid Ordering:} 
+    \textit{Natural Ordering:} Maps 2D grid to 1D vector row-by-row.
+    \textit{Red-Black Ordering:} Colors nodes like a chessboard. Allows highly parallelized updates since Red nodes only depend on Black nodes and vice-versa.
+    \item \textbf{Iterative Solvers:} Ideal for sparse, large meshes.
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Jacobi / Gauss-Seidel:} Basic sweeping iterations.
+        \item \textit{SOR (Successive Over-Relaxation):} $u^{new} = \lambda u^{GS} + (1-\lambda)u^{old}$. Factor $\lambda \in (1,2)$ heavily accelerates convergence.
+    \end{itemize}
+\end{itemize}
+
+\cheatsheetsubsection{Parabolic PDEs (Heat Equation $u_t = \alpha u_{xx}$)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Explicit Method (FTCS):} Forward Time, Centered Space. Conditionally stable.
+    \item \textbf{Von Neumann Stability Analysis:} Fourier decomposition to assess error growth. For FTCS, requires $r = \frac{\alpha \Delta t}{(\Delta x)^2} \leq \frac{1}{2}$.
+    \item \textbf{Implicit Methods:} Backward Time. Unconditionally stable but requires solving a system at each time step.
+    \item \textbf{Crank-Nicolson:} Averages Explicit and Implicit schemes. Unconditionally stable and second-order accurate in both time and space $\mathcal{O}(\Delta t^2, \Delta x^2)$.
+\end{itemize}
+
+\cheatsheetsubsection{Hyperbolic PDEs (Wave Equation $u_{tt} = c^2 u_{xx}$)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{CFL Condition (Courant-Friedrichs-Lewy):} The numerical domain of dependence must encompass the mathematical domain. Stable if Courant number $C = \frac{c \Delta t}{\Delta x} \leq 1$.
+    \item \textbf{Stable Schemes:} The \textit{Upwind Scheme} is frequently used to maintain the directional flow of information. The \textit{Lax-Wendroff Method} provides stable 2nd-order accuracy in both time and space.
+\end{itemize}
+
+\cheatsheetsubsection{Advanced Methods}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Finite Element Method (FEM):} Discretizes continuous domains into geometric elements. Solves integral formulations of PDEs using basis functions. Ideal for complex geometries and boundary conditions where Finite Differences fail.
+\end{itemize}
+
+\onecolumn
+\raggedbottom
+
+\cheatsheetsection{\LARGE VII. Quick Reference Tables}
+\vspace{1em}
+
+\renewcommand{\arraystretch}{1.1}
+{\large
+\centering
+
+\textbf{\Large Root Finding Comparison}
+\vspace{0.3em}
+
+\noindent 
+\begin{tabularx}{0.95\linewidth}{l l X X l}
+\toprule
+\textbf{Method} & \textbf{Order} & \textbf{Stability / Reliability} & \textbf{Cost/Step} & \textbf{Requirements / Notes} \\
+\midrule
+Bisection & 1 (Linear)   & Very High (Guaranteed) & Low (1 eval) & Requires $f(a)f(b) < 0$ \\
+Regula Falsi & 1 (Linear) & High (Can stagnate) & Low (1 eval) & Requires $f(a)f(b) < 0$ \\
+Newton    & 2 (Quad)     & Low (Diverges easily)  & High (2 evals) & Requires analytical $f'(x)$ \\
+Secant    & $\approx 1.62$ (Super) & Medium (Better than Newton) & Med (1 eval) & 2 initial guesses \\
+Fixed-Point & 1 (Linear) & Low (Depends on $|g'(x)|$) & Low (1 eval) & Reformulation $x = g(x)$ \\
+Brent     & Superlinear  & Very High (Hybrid)   & Med-High & Robust, industry standard \\
+\bottomrule
+\end{tabularx}
+
+\vspace{1em}
+\textbf{\Large Integration Comparison}
+\vspace{0.3em}
+
+\noindent
+\begin{tabularx}{0.95\linewidth}{l l X X X}
+\toprule
+\textbf{Method} & \textbf{Global Error} & \textbf{Nodes} & \textbf{Best For} & \textbf{Key Characteristic} \\
+\midrule
+Midpoint & $\mathcal{O}(h^2)$ & Uniform (Centers) & Rough, quick estimates & Open Newton-Cotes \\
+Trapezoidal & $\mathcal{O}(h^2)$ & Uniform (Edges) & Linear/simple curves & Tends to over/underestimate \\
+Simpson's 1/3 & $\mathcal{O}(h^4)$ & Uniform (3 points) & Smooth functions & Exact for up to cubics \\
+Gaussian & $\mathcal{O}(h^{2n})$ & Optimized & Max precision, high cost & Roots of Legendre polynomials \\
+Romberg & $\mathcal{O}(h^{2k})$ & Hierarchical & High accuracy integration & Richardson extrapolation \\
+\bottomrule
+\end{tabularx}
+
+\vspace{1em}
+\textbf{\Large ODE Solvers Comparison}
+\vspace{0.3em}
+
+\noindent
+\begin{tabularx}{0.95\linewidth}{l l X X X}
+\toprule
+\textbf{Method} & \textbf{Order} & \textbf{Stability} & \textbf{Cost/Step} & \textbf{Optimal Use Case} \\
+\midrule
+Euler & 1 & Low & Low (1 eval) & Educational, rough baseline \\
+Modified Euler & 2 & Medium & Med (2 evals) & Predictor-Corrector steps \\
+RK4 & 4 & High & Medium (4 evals) & Standard general-purpose solver \\
+RKF45 & Adaptive & Very High & High (6 evals) & Dynamics with varying timescales \\
+Implicit (B.E.) & 1 & Unconditionally Stable & High (Solver) & Stiff differential equations \\
+Symplectic & $\ge 2$ & Preserves Phase Space & Medium & Orbital and mechanical systems \\
+\bottomrule
+\end{tabularx}
+
+\par
+}
+
+\vspace*{\fill}
+\twocolumn
+\flushbottom
+
+\end{document}
