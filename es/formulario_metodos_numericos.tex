@@ -1,0 +1,345 @@
+\documentclass[10pt, landscape, twocolumn]{article}
+
+\usepackage[margin=0.5in, columnsep=0.4in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{enumitem}
+\usepackage{mathpazo} 
+\usepackage{booktabs}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+
+\AtBeginDocument{
+  \setlength{\abovedisplayskip}{3pt}
+  \setlength{\belowdisplayskip}{3pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+}
+
+\definecolor{themeblue}{RGB}{0, 90, 160}
+\definecolor{themegray}{RGB}{80, 80, 80}
+
+\newcommand{\cheatsheetsection}[1]{
+    \vspace{0.6em}
+    {\color{themeblue}\large\bfseries #1} \par
+    \vspace{-0.5em}
+    {\color{themeblue}\rule{\linewidth}{1pt}} \par
+    \vspace{0.2em}
+}
+
+\newcommand{\cheatsheetsubsection}[1]{
+    \vspace{0.4em}
+    {\color{themeblue}\normalsize\bfseries #1} \par
+    \vspace{0.1em}
+}
+
+\begin{document}
+
+\begin{center}
+    \vspace{-1em}
+    {\color{themeblue}\huge\bfseries HOJA DE REFERENCIA DE MÉTODOS NUMÉRICOS}\\[0.6em]
+    {\color{themegray}\small Fundamentos, Raíces, Álgebra Lineal, Cálculo, EDOs y EDPs}\\[0.4em]
+    {\color{themegray}\footnotesize \textbf{Por Roberto León Landeros}}
+\end{center}
+\vspace{-1em}
+
+\cheatsheetsection{I. Computación Científica y Fundamentos}
+
+\cheatsheetsubsection{Aritmética Computacional}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Binario e IEEE 754:} Las computadoras almacenan números en base 2. La doble precisión utiliza 64 bits (1 de signo, 11 de exponente, 52 de mantisa/fracción). Épsilon de la máquina $\epsilon_m \approx 2.22 \times 10^{-16}$.
+    \item \textbf{Tipos de Error:} Sea $p$ el valor exacto y $p^*$ el aproximado.
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Error Absoluto:} $E_a = |p - p^*|$
+        \item \textit{Error Relativo:} $E_r = \frac{|p - p^*|}{|p|}$
+        \item \textit{Error de Truncamiento:} Surge al utilizar un procedimiento matemático truncado (ej., serie de Taylor finita).
+        \item \textit{Error de Redondeo:} Surge debido a la precisión finita de la máquina.
+    \end{itemize}
+    \item \textbf{Propagación del Error:} La pérdida de significancia ocurre durante la cancelación sustractiva de números casi iguales.
+\end{itemize}
+
+\cheatsheetsubsection{Fundamentos Matemáticos}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Serie de Taylor:} $f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n$
+    \item \textbf{Residuo de Lagrange:} $R_n(x) = \frac{f^{(n+1)}(\xi)}{(n+1)!}(x-a)^{n+1}$ para $\xi \in (a,x)$. 
+    \item \textbf{Condicionamiento:} Un problema está bien condicionado si pequeños cambios en la entrada producen pequeños cambios en la salida.
+    \item \textbf{Número de Condición:} $\kappa(A) = \|A\| \|A^{-1}\| \quad \text{(norma inducida)}$. Si $\kappa(A)$ es grande, la matriz está mal condicionada. \\
+    \textit{Interpretación:} Mide la sensibilidad de la solución ante errores en los datos de entrada.
+\end{itemize}
+
+\cheatsheetsubsection{Prácticas de Programación Numérica}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Vectorización:} Reemplazar operaciones basadas en bucles por operaciones de matrices/vectores para optimizar la velocidad de ejecución en entornos como MATLAB o NumPy.
+    \item \textbf{Complejidad Algorítmica:} La notación Big-O $\mathcal{O}(n)$ describe la cota superior de las operaciones requeridas.
+\end{itemize}
+
+\cheatsheetsection{II. Búsqueda de Raíces y Optimización}
+
+\cheatsheetsubsection{Métodos Cerrados (Por Intervalos)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Método de Bisección:} Requiere $f(a)f(b) < 0$. La raíz se encuentra en $[a,b]$.
+    $p_n = \frac{a+b}{2}$. Error $\leq \frac{b-a}{2^n}$. \\
+    \textit{Usar cuando:} Se necesita un acotamiento confiable de la raíz sin evaluar derivadas. \\
+    \textit{Evitar cuando:} Se requiere una convergencia rápida.
+    \item \textbf{Regula Falsi (Falsa Posición):} $p_n = b - f(b)\frac{b-a}{f(b)-f(a)}$.
+\end{itemize}
+
+\cheatsheetsubsection{Métodos Abiertos e Híbridos}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Newton-Raphson:} $p_n = p_{n-1} - \frac{f(p_{n-1})}{f'(p_{n-1})}$. 
+    Requiere la derivada analítica. Convergencia cuadrática: $|e_{n+1}| \approx C |e_n|^2$. \\
+    \textit{Usar cuando:} Se dispone de una buena estimación inicial y de la derivada. Convergencia rápida. \\
+    \textit{Evitar cuando:} $f'(x) \approx 0$ o la estimación inicial es deficiente. \\
+    \textit{Visualización compleja:} Genera Fractales de Newton al mapear el comportamiento de convergencia en el plano complejo.
+    \item \textbf{Método de la Secante:} Aproxima $f'(x)$.
+    $p_n = p_{n-1} - f(p_{n-1})\frac{p_{n-1}-p_{n-2}}{f(p_{n-1})-f(p_{n-2})}$. 
+    Convergencia superlineal (orden $\approx 1.618$). \\
+    \textit{Usar cuando:} Calcular la derivada es computacionalmente costoso o es desconocida.
+    \item \textbf{Iteración de Punto Fijo:} Reescribe $f(x)=0$ como $x = g(x)$. Se itera $p_n = g(p_{n-1})$. Converge si $|g'(x)| < 1$ cerca de la raíz.
+    \item \textbf{Método de Brent:} El estándar de la industria (ej., \texttt{fzero}). Un híbrido óptimo que combina la convergencia garantizada de la Bisección con la velocidad del método de la Secante y la Interpolación Cuadrática Inversa.
+\end{itemize}
+
+\cheatsheetsubsection{Optimización Básica (Minimización)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Búsqueda de la Sección Dorada (1D):} Método cerrado que utiliza la proporción áurea para acotar el mínimo de una función unimodal sin el uso de derivadas.
+    \item \textbf{Descenso del Gradiente ($n$D):} $\mathbf{x}_{k+1} = \mathbf{x}_k - \alpha \nabla f(\mathbf{x}_k)$. Optimización iterativa de primer orden para encontrar mínimos locales.
+\end{itemize}
+
+\cheatsheetsubsection{Raíces de Polinomios}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Método de Müller:} Utiliza una aproximación parabólica (3 puntos) para encontrar raíces reales y complejas.
+    \item \textbf{Método de Bairstow:} Extrae factores cuadráticos de manera iterativa para encontrar todas las raíces (reales y complejas) evitando la aritmética compleja di.
+\end{itemize}
+
+\cheatsheetsection{III. Álgebra Matricial y Sistemas Lineales}
+
+\cheatsheetsubsection{Métodos Directos y Factorizaciones}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Eliminación Gaussiana:} $\mathcal{O}(n^3)$ operaciones. 
+    \textit{Pivoteo Parcial:} Intercambio de filas para colocar el valor absoluto más grande en la diagonal principal, evitando la división por cero y mitigando el error de redondeo. Eliminación hacia adelante + Sustitución hacia atrás $\mathcal{O}(n^2)$.
+    \item \textbf{Descomposición LU:} $A = LU$. Resuelve $A\mathbf{x} = \mathbf{b}$ mediante $L\mathbf{y} = \mathbf{b}$ y $U\mathbf{x} = \mathbf{y}$.
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Doolittle:} $L_{ii} = 1$.
+        \item \textit{Crout:} $U_{ii} = 1$.
+    \end{itemize}
+    \item \textbf{Factorización de Cholesky:} $A = LL^T$. Requiere que $A$ sea simétrica y definida positiva.
+    \item \textbf{Descomposición en Valores Singulares (SVD):} $A = U \Sigma V^T$. Crucial para matrices mal condicionadas, el cálculo de la pseudoinversa ($A^+$) para sistemas sobredeterminados, y PCA.
+\end{itemize}
+
+\cheatsheetsubsection{Métodos Iterativos (Sistemas Lineales)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Jacobi:} Calcula los nuevos valores $x_i^{(k+1)}$ utilizando únicamente los valores antiguos $x^{(k)}$.
+    \item \textbf{Gauss-Seidel:} Utiliza los valores recién calculados de forma inmediata en la iteración actual. \\
+    \textit{Condición de convergencia:} Garantizada si el radio espectral $\rho(T) < 1$ o si $A$ es estrictamente diagonal dominante.
+    \item \textbf{Métodos de los Subespacios de Krylov:} 
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Gradiente Conjugado (CG):} El estándar para matrices grandes, dispersas y simétricas definidas positivas. Convergencia extremadamente rápida comparada con métodos iterativos estándar.
+    \end{itemize}
+\end{itemize}
+
+\cheatsheetsubsection{Valores Propios (Eigenvalores)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Método de la Potencia:} Método iterativo para encontrar el valor propio dominante $\lambda_1$ y su vector propio $\mathbf{v}$. 
+    $\mathbf{x}_{k+1} = \frac{A \mathbf{x}_k}{\|A \mathbf{x}_k\|}$.
+    \item \textbf{Método de la Potencia Inversa:} Aplica el método de la potencia a $A^{-1}$ o $(A - \sigma I)^{-1}$ para encontrar el valor propio más pequeño o el más cercano a un desplazamiento (shift) $\sigma$.
+    \item \textbf{Algoritmo QR:} Factoriza iterativamente $A_k = Q_k R_k$ y establece $A_{k+1} = R_k Q_k$ para encontrar todos los valores propios simultáneamente.
+\end{itemize}
+
+\cheatsheetsubsection{Sistemas No Lineales}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Newton-Raphson Multivariable:} $\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - [J(\mathbf{x}^{(k)})]^{-1} \mathbf{F}(\mathbf{x}^{(k)})$, donde $J$ es la matriz Jacobiana $\frac{\partial F_i}{\partial x_j}$. Asegurar una notación vectorial consistente ($\mathbf{x}, \mathbf{F}$).
+\end{itemize}
+
+\cheatsheetsection{IV. Cuadratura, Diferenciación e Interpolación}
+
+\cheatsheetsubsection{Interpolación y Ajuste de Curvas}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Polinomios de Lagrange:} $P(x) = \sum_{i=0}^n y_i L_i(x)$, donde $L_i(x) = \prod_{j \neq i} \frac{x - x_j}{x_i - x_j}$.
+    \item \textbf{Diferencias Divididas de Newton:} Construye polinomios utilizando diferencias jerárquicas. $P_n(x) = f[x_0] + f[x_0, x_1](x-x_0) + \dots$
+    \item \textbf{Estabilidad (Fenómeno de Runge):} Los polinomios globales de alto grado oscilan abruptamente en los extremos de los nodos equidistantes. \\
+    \textit{Por qué Splines > Polinomios Globales:} Los splines emplean polinomios definidos a trozos de bajo grado, proporcionando control local y evitando oscilaciones globales.
+    \item \textbf{Nodos de Chebyshev:} Para mitigar el fenómeno de Runge a nivel global, se utilizan las raíces de los polinomios de Chebyshev para la colocación de nodos. Esta distribución óptima minimiza el error máximo de interpolación.
+    \item \textbf{Splines Cúbicos:} Polinomios cúbicos definidos a trozos con $f'$ y $f''$ continuas. 
+    \textit{Condición de no-nodo (not-a-knot):} Fuerza a que la tercera derivada sea continua en el segundo y el penúltimo nodo.
+    \item \textbf{Mínimos Cuadrados:} Minimiza la suma de los residuos al cuadrado. Para regresión lineal $\mathbf{X}^T\mathbf{X}\boldsymbol{\beta} = \mathbf{X}^T\mathbf{y}$.
+\end{itemize}
+
+\cheatsheetsubsection{Diferenciación Numérica}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Hacia adelante / Hacia atrás:} $f'(x) \approx \frac{f(x \pm h) - f(x)}{\pm h}$ (Orden $\mathcal{O}(h)$)
+    \item \textbf{Central (1ra Derivada):} $f'(x) \approx \frac{f(x+h) - f(x-h)}{2h}$ (Orden $\mathcal{O}(h^2)$)
+    \item \textbf{Central (2da Derivada):} $f''(x) \approx \frac{f(x+h) - 2f(x) + f(x-h)}{h^2}$ (Orden $\mathcal{O}(h^2)$)
+    \item \textbf{Extrapolación de Richardson:} Elimina los términos de error de truncamiento de menor orden combinando dos estimaciones con diferentes tamaños de paso (ej., $h$ y $h/2$), aumentando el orden de precisión.
+    \item \textbf{Inestabilidad (Dilema del Tamaño de Paso):} Existe un $h$ óptimo. Disminuir $h$ reduce el error de truncamiento, pero eventualmente incrementa de forma exponencial el error de redondeo debido a la cancelación sustractiva.
+\end{itemize}
+
+\cheatsheetsubsection{Integración Numérica (Cuadratura)}
+Sea $I = \int_a^b f(x)dx$ y $h = \frac{b-a}{n}$.
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Regla del Punto Medio:} $I \approx (b-a) f(\frac{a+b}{2})$.
+    \item \textbf{Regla del Trapecio:} $I \approx \frac{h}{2} [f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n)]$. \\
+    \textbf{Error Trapezoidal:} $E = -\frac{(b-a)^3}{12n^2} f''(\xi)$.
+    \item \textbf{Regla de Simpson 1/3:} Utiliza arcos parabólicos.
+    $I \approx \frac{h}{3} [f(x_0) + 4\sum_{impares} f(x_i) + 2\sum_{pares} f(x_i) + f(x_n)]$.
+    \item \textbf{Cuadratura Gaussiana:} Selecciona nodos no uniformes óptimos (raíces de polinomios de Legendre) y pesos. \textit{Exacta para polinomios de hasta grado } $2n-1$. \\
+    \textit{Mapeo de Intervalos:} Para aplicar pesos tabulados en $[a,b]$, usar el mapeo lineal $x = \frac{b-a}{2}t + \frac{b+a}{2}$ para $t \in [-1,1]$.
+    \item \textbf{Integración Adaptativa:} Reduce dinámicamente el tamaño de paso $h$ en regiones con alta variación de la función para minimizar el costo computacional.
+    \item \textbf{Integración de Romberg:} Aplica la extrapolación de Richardson para combinar aproximaciones trapezoidales, acelerando la convergencia.
+\end{itemize}
+
+\newpage
+\cheatsheetsection{V. Ecuaciones Diferenciales Ordinarias (EDOs)}
+\textbf{Notación de Error:} \textbf{Error de truncamiento local:} $\mathcal{O}(h^{p+1})$. \textbf{Error global:} $\mathcal{O}(h^p)$.
+
+\cheatsheetsubsection{Problemas de Valor Inicial (PVIs)}
+Formato de la ecuación: $y' = f(t, y)$ con $y(t_0) = y_0$.
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Método de Euler (1er Orden):} $y_{i+1} = y_i + h f(t_i, y_i)$. \\
+    \textit{Usar cuando:} Aproximaciones rápidas y preliminares. \textit{Evitar cuando:} Se requiere alta precisión.
+    \item \textbf{Euler Modificado (Heun / Predictor-Corrector):} 
+    Predictor: $y_{i+1}^* = y_i + h f(t_i, y_i)$.
+    Corrector: $y_{i+1} = y_i + \frac{h}{2}[f(t_i, y_i) + f(t_{i+1}, y_{i+1}^*)]$.
+    \item \textbf{Runge-Kutta de 4to Orden (RK4):} Error global $\mathcal{O}(h^4)$.
+    $k_1 = h f(t_i, y_i)$ \\
+    $k_2 = h f(t_i + \frac{h}{2}, y_i + \frac{k_1}{2})$ \\
+    $k_3 = h f(t_i + \frac{h}{2}, y_i + \frac{k_2}{2})$ \\
+    $k_4 = h f(t_i + h, y_i + k_3)$ \\
+    $y_{i+1} = y_i + \frac{1}{6}(k_1 + 2k_2 + 2k_3 + k_4)$. \\
+    \textit{Usar cuando:} Se requiere un solver estándar, equilibrado y de propósito general.
+    \item \textbf{RK Adaptativo (ej., RKF45):} Compara una estimación RK de 4to y 5to orden para estimar el error local y ajustar automáticamente el tamaño de paso $h$. 
+\end{itemize}
+
+\cheatsheetsubsection{Estabilidad y Métodos Avanzados}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Región de Estabilidad:} Dominio en el plano complejo $h\lambda$ donde la solución numérica de $y'=\lambda y$ decae a cero. 
+    \textit{Interpretación:} Define el tamaño de paso máximo permitido $h$ para mantener errores acotados.
+    \item \textbf{Problemas Rígidos (Stiff):} Sistemas con escalas de tiempo muy variables (ej., transitorios rápidos y dinámicas lentas). Los métodos explícitos (como RK4) requieren un $h$ prohibitivamente pequeño para mantener la estabilidad. \\
+    \textit{Solución:} Utilizar métodos Implícitos (ej., Euler Hacia Atrás) que típicamente ofrecen regiones incondicionalmente estables.
+    \item \textbf{Integradores Simplécticos:} (ej., Leapfrog, Verlet). Esenciales para problemas orbitales y mecánicos ya que conservan la energía del sistema a largo plazo, a diferencia de los métodos RK.
+\end{itemize}
+
+\cheatsheetsubsection{Problemas de Valores en la Frontera (PVFs)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Método del Disparo:} Convierte un PVF en un PVI. Conjetura la pendiente inicial faltante, integra hasta la frontera y utiliza búsqueda de raíces (como la Secante) para ajustar la conjetura hasta cumplir con la condición de frontera.
+    \item \textbf{Diferencias Finitas:} Discretiza el dominio y reemplaza las derivadas con cocientes de diferencias finitas, generando un sistema de ecuaciones algebraicas (frecuentemente tridiagonal).
+\end{itemize}
+
+\newpage
+\cheatsheetsection{VI. Ecuaciones Diferenciales Parciales (EDPs)}
+
+\cheatsheetsubsection{Fundamentos y Clasificación}
+Forma general: $Au_{xx} + Bu_{xy} + Cu_{yy} + Du_x + Eu_y + Fu = G$.
+Discriminante $\Delta = B^2 - 4AC$.
+\begin{itemize}[leftmargin=*, nosep]
+    \item $\Delta < 0$: \textbf{Elíptica} (Equilibrio/estado estacionario, ej., Laplace/Poisson).
+    \item $\Delta = 0$: \textbf{Parabólica} (Difusión/disipación, ej., Ec. del Calor).
+    \item $\Delta > 0$: \textbf{Hiperbólica} (Propagación de ondas, ej., Ec. de Onda).
+\end{itemize}
+
+\cheatsheetsubsection{EDPs Elípticas (Laplace $\nabla^2 u = 0$)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Plantilla de 5 Puntos (Stencil):} $u_{i+1,j} + u_{i-1,j} + u_{i,j+1} + u_{i,j-1} - 4u_{i,j} = 0$.
+    \item \textbf{Ordenamiento de la Malla:} 
+    \textit{Ordenamiento Natural:} Mapea la malla 2D a un vector 1D fila por fila.
+    \textit{Ordenamiento Rojo-Negro:} Colorea los nodos como un tablero de ajedrez. Permite actualizaciones altamente paralelizables ya que los nodos Rojos solo dependen de los Negros y viceversa.
+    \item \textbf{Solvers Iterativos:} Ideales para mallas grandes y dispersas.
+    \begin{itemize}[leftmargin=*, nosep]
+        \item \textit{Jacobi / Gauss-Seidel:} Iteraciones de barrido básico.
+        \item \textit{SOR (Sobrerrelajación Sucesiva):} $u^{nuevo} = \lambda u^{GS} + (1-\lambda)u^{viejo}$. El factor $\lambda \in (1,2)$ acelera fuertemente la convergencia.
+    \end{itemize}
+\end{itemize}
+
+\cheatsheetsubsection{EDPs Parabólicas (Ec. del Calor $u_t = \alpha u_{xx}$)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Método Explícito (FTCS):} Tiempo Hacia Adelante, Espacio Centrado. Condicionalmente estable.
+    \item \textbf{Análisis de Estabilidad de Von Neumann:} Descomposición de Fourier para evaluar el crecimiento del error. Para FTCS, requiere $r = \frac{\alpha \Delta t}{(\Delta x)^2} \leq \frac{1}{2}$.
+    \item \textbf{Métodos Implícitos:} Tiempo Hacia Atrás. Incondicionalmente estables pero requieren resolver un sistema en cada paso de tiempo.
+    \item \textbf{Crank-Nicolson:} Promedia los esquemas Explícito e Implícito. Incondicionalmente estable y con precisión de segundo orden tanto en tiempo como en espacio $\mathcal{O}(\Delta t^2, \Delta x^2)$.
+\end{itemize}
+
+\cheatsheetsubsection{EDPs Hiperbólicas (Ec. de Onda $u_{tt} = c^2 u_{xx}$)}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Condición CFL (Courant-Friedrichs-Lewy):} El dominio numérico de dependencia debe abarcar el dominio matemático. Estable si el número de Courant $C = \frac{c \Delta t}{\Delta x} \leq 1$.
+    \item \textbf{Esquemas Estables:} El \textit{Esquema Upwind (Contra Viento)} se usa frecuentemente para mantener el flujo direccional de la información. El \textit{Método de Lax-Wendroff} proporciona una precisión estable de 2do orden tanto en tiempo como en espacio.
+\end{itemize}
+
+\cheatsheetsubsection{Métodos Avanzados}
+\begin{itemize}[leftmargin=*, nosep]
+    \item \textbf{Método de Elementos Finitos (MEF):} Discretiza dominios continuos en elementos geométricos. Resuelve formulaciones integrales de EDPs utilizando funciones base. Ideal para geometrías y condiciones de frontera complejas donde las Diferencias Finitas fallan.
+\end{itemize}
+
+\onecolumn
+\raggedbottom
+
+\cheatsheetsection{\LARGE VII. Tablas de Referencia Rápida}
+\vspace{1em}
+
+\renewcommand{\arraystretch}{1.1}
+{\large
+\centering
+
+\textbf{\Large Comparación de Búsqueda de Raíces}
+\vspace{0.3em}
+
+\noindent 
+\begin{tabularx}{0.95\linewidth}{l l X X l}
+\toprule
+\textbf{Método} & \textbf{Orden} & \textbf{Estabilidad / Confiabilidad} & \textbf{Costo/Paso} & \textbf{Requisitos / Notas} \\
+\midrule
+Bisección & 1 (Lineal)   & Muy Alta (Garantizada) & Bajo (1 eval) & Requiere $f(a)f(b) < 0$ \\
+Regula Falsi & 1 (Lineal) & Alta (Puede estancarse) & Bajo (1 eval) & Requiere $f(a)f(b) < 0$ \\
+Newton    & 2 (Cuad.)      & Baja (Diverge fácilmente)  & Alto (2 evals) & Requiere analítica $f'(x)$ \\
+Secante   & $\approx 1.62$ (Súper) & Media (Mejor que Newton) & Medio (1 eval) & 2 estimaciones iniciales \\
+Punto Fijo & 1 (Lineal) & Baja (Depende de $|g'(x)|$) & Bajo (1 eval) & Reformulación $x = g(x)$ \\
+Brent     & Superlineal  & Muy Alta (Híbrido)   & Medio-Alto & Robusto, estándar de industria \\
+\bottomrule
+\end{tabularx}
+
+\vspace{1em}
+\textbf{\Large Comparación de Integración}
+\vspace{0.3em}
+
+\noindent
+\begin{tabularx}{0.95\linewidth}{l l X X X}
+\toprule
+\textbf{Método} & \textbf{Error Global} & \textbf{Nodos} & \textbf{Ideal Para} & \textbf{Característica Clave} \\
+\midrule
+Punto Medio & $\mathcal{O}(h^2)$ & Uniformes (Centros) & Estimaciones rápidas & Newton-Cotes Abierto \\
+Trapecio & $\mathcal{O}(h^2)$ & Uniformes (Bordes) & Curvas lineales/simples & Tiende a sobre/subestimar \\
+Simpson 1/3 & $\mathcal{O}(h^4)$ & Uniformes (3 puntos) & Funciones suaves & Exacta hasta cúbicas \\
+Gaussiana & $\mathcal{O}(h^{2n})$ & Optimizados & Máx. precisión, costo alto & Raíces de polinomios Legendre \\
+Romberg & $\mathcal{O}(h^{2k})$ & Jerárquicos & Integración de alta exactitud & Extrapolación de Richardson \\
+\bottomrule
+\end{tabularx}
+
+\vspace{1em}
+\textbf{\Large Comparación de Solvers para EDOs}
+\vspace{0.3em}
+
+\noindent
+\begin{tabularx}{0.95\linewidth}{l l X X X}
+\toprule
+\textbf{Método} & \textbf{Orden} & \textbf{Estabilidad} & \textbf{Costo/Paso} & \textbf{Caso de Uso Óptimo} \\
+\midrule
+Euler & 1 & Baja & Bajo (1 eval) & Educativo, referencia básica \\
+Euler Modificado & 2 & Media & Medio (2 evals) & Pasos Predictor-Corrector \\
+RK4 & 4 & Alta & Medio (4 evals) & Solver general estándar \\
+RKF45 & Adaptativo & Muy Alta & Alto (6 evals) & Dinámicas con escalas variables \\
+Implícito (E.A.) & 1 & Incondicionalmente Estable & Alto (Solver) & Ecuaciones diferenciales rígidas \\
+Simpléctico & $\ge 2$ & Preserva Espacio Fase & Medio & Sistemas orbitales y mecánicos \\
+\bottomrule
+\end{tabularx}
+
+\par
+}
+
+\vspace*{\fill}
+\twocolumn
+\flushbottom
+
+\end{document}
