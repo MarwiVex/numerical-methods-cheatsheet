@@ -1,4 +1,4 @@
-# Formulario de Métodos Numéricos (WIP)
+# Formulario de Métodos Numéricos
 
 Este directorio contiene la versión en español del formulario, diseñado en LaTeX. Es un material de referencia ideal para estudiantes, ingenieros e investigadores en el área del cálculo científico. El documento abarca desde la aritmética computacional fundamental hasta técnicas avanzadas para la resolución de Ecuaciones Diferenciales Ordinarias y Parciales.
 
